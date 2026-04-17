@@ -21,7 +21,7 @@ document.getElementById("login-form")?.addEventListener("submit", async (e) => {
       messageEl.textContent = "Успешный вход!";
       messageEl.className = "message success";
       messageEl.classList.remove("hidden");
-      setTimeout(() => (window.location.href = "/"), 1500);
+      setTimeout(() => (window.location.href = "/profile"), 1500);
     } else {
       messageEl.textContent = result.error || "Ошибка входа";
       messageEl.className = "message error";

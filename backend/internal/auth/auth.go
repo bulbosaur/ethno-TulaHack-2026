@@ -9,19 +9,19 @@ import (
 )
 
 type AuthService struct {
-    userRepo *repository.UserRepository
+    UserRepo *repository.UserRepository
     AuthProv Provider
 }
 
 func NewAuthService(userRepo *repository.UserRepository, authProv Provider) *AuthService {
     return &AuthService{
-        userRepo: userRepo,
+        UserRepo: userRepo,
         AuthProv: authProv,
     }
 }
 
 func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest) (*models.User, error) {
-    existing, err := s.userRepo.GetByEmail(ctx, req.Email)
+    existing, err := s.UserRepo.GetByEmail(ctx, req.Email)
     if err != nil {
         return nil, err
     }
@@ -34,7 +34,7 @@ func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest)
         return nil, err
     }
 
-    user, err := s.userRepo.Create(ctx, models.CreateUserDTO{
+    user, err := s.UserRepo.Create(ctx, models.CreateUserDTO{
         Email:        req.Email,
         Username:     req.Username,
         PasswordHash: hash,
@@ -47,7 +47,7 @@ func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest)
 }
 
 func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest) (*models.User, string, error) {
-    userAuth, err := s.userRepo.GetByEmail(ctx, req.Email)
+    userAuth, err := s.UserRepo.GetByEmail(ctx, req.Email)
     if err != nil {
         return nil, "", err
     }

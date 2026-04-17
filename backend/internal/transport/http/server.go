@@ -5,6 +5,7 @@ import (
 	"ethno/internal/config"
 	"ethno/internal/repository"
 	handler "ethno/internal/transport/http/handlers"
+	"ethno/internal/transport/http/middleware"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -29,6 +30,16 @@ func NewServer(folkRepo *repository.FolkRepository, authService *auth.AuthServic
     r.Post("/api/register", authHandler.Register)
     r.Post("/api/login", authHandler.Login)
 	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
+	
+	r.Group(func(r chi.Router) {
+    	r.Use(middleware.AuthFromCookie(authService.AuthProv, logger, "jwt_token"))
+        
+        r.Get("/api/me", authHandler.GetMe)
+    })
+	
+	r.Get("/profile", func(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "../frontend/templates/profile.html")
+	})
 
 	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "../frontend/templates/login.html")

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Личный кабинет | EthnoQuest</title>
+    <link rel="stylesheet" href="/static/css/profile.css" />
+  </head>
+  <body>
+    <header class="dashboard-header">
+      <h1>Привет, <span id="user-name">Загрузка...</span></h1>
+      <button id="logout-btn" class="btn-secondary">Выйти</button>
+    </header>
+
+    <main class="dashboard-content">
+      <section class="quests-section">
+        <h2>🗺️ Рекомендованные квесты</h2>
+        <div id="quests-grid" class="quests-grid">
+          <div class="quest-card placeholder">Загрузка рекомендаций...</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/js/profile.js"></script>
+  </body>
+</html>

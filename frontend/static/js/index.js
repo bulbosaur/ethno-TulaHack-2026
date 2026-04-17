@@ -14,9 +14,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       return acc;
     }, {});
 
-    console.log("✅ Loaded regions from backend:", allowedRegionNames);
+    console.log("Loaded regions from backend:", allowedRegionNames);
   } catch (err) {
-    console.error("❌ Failed to load regions:", err);
+    console.error("Failed to load regions:", err);
     allowedRegionNames = [];
   }
 
