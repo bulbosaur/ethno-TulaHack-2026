@@ -24,6 +24,9 @@ func NewServer(cfg *config.ServerConfig, logger *logrus.Logger) *Server {
 
 	fs := http.FileServer(http.Dir("../frontend/templates"))
     r.Handle("/*", http.StripPrefix("/", fs))
+	
+    staticFS := http.FileServer(http.Dir("../frontend/static"))
+    r.Handle("/static/*", http.StripPrefix("/static/", staticFS))
 
     return &Server{
         router: r,
