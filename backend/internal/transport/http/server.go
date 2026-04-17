@@ -13,67 +13,79 @@ import (
 )
 
 type Server struct {
-    router *chi.Mux
-    logger *logrus.Logger
+	router *chi.Mux
+	logger *logrus.Logger
 }
 
-func NewServer(folkRepo *repository.FolkRepository, authService *auth.AuthService, cfg *config.ServerConfig, logger *logrus.Logger) *Server {
+func NewServer(
+	folkRepo *repository.FolkRepository,
+	authService *auth.AuthService,
+	cfg *config.ServerConfig,
+	logger *logrus.Logger,
+	questRepo *repository.QuestRepository,
+) *Server {
 	authHandler := handler.NewAuthHandler(authService, cfg)
-    r := chi.NewRouter()
-    r.Use(loggerMiddleware(logger))
+	questHandler := handler.NewQuestHandler(questRepo, logger)
 
-    r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-        w.WriteHeader(http.StatusOK)
-        w.Write([]byte(`{"status":"ok"}`))
-    })
+	r := chi.NewRouter()
+	r.Use(loggerMiddleware(logger))
 
-    r.Post("/api/register", authHandler.Register)
-    r.Post("/api/login", authHandler.Login)
-	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
-	
-	r.Group(func(r chi.Router) {
-    	r.Use(middleware.AuthFromCookie(authService.AuthProv, logger, "auth_token"))
-        
-        r.Get("/api/me", authHandler.GetMe)
-    })
-
-	r.Get("/profile", func(w http.ResponseWriter, r *http.Request) {
-    http.ServeFile(w, r, "../frontend/templates/profile.html")
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
 	})
 
+	r.Post("/api/register", authHandler.Register)
+	r.Post("/api/login", authHandler.Login)
+
+	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
+
+	questHandler.RegisterRoutes(r) 
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.AuthFromCookie(authService.AuthProv, logger, "auth_token"))
+		r.Get("/api/me", authHandler.GetMe)
+	})
+
+	r.Get("/profile", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../frontend/templates/profile.html")
+	})
 	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
-    http.ServeFile(w, r, "../frontend/templates/login.html")
-    })
+		http.ServeFile(w, r, "../frontend/templates/login.html")
+	})
 	r.Get("/register", func(w http.ResponseWriter, r *http.Request) {
-    http.ServeFile(w, r, "../frontend/templates/register.html")
-    })
+		http.ServeFile(w, r, "../frontend/templates/register.html")
+	})
+	r.Get("/quests/{slug}", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../frontend/templates/quest.html")
+	})
 
-	fs := http.FileServer(http.Dir("../frontend/templates"))
-    r.Handle("/*", http.StripPrefix("/", fs))
-	
-    staticFS := http.FileServer(http.Dir("../frontend/static"))
-    r.Handle("/static/*", http.StripPrefix("/static/", staticFS))
+	staticFS := http.FileServer(http.Dir("../frontend/static"))
+	r.Handle("/static/*", http.StripPrefix("/static/", staticFS))
 
-    return &Server{
-        router: r,
-        logger: logger,
-    }
+	templatesFS := http.FileServer(http.Dir("../frontend/templates"))
+	r.Handle("/*", http.StripPrefix("/", templatesFS))
+
+	return &Server{
+		router: r,
+		logger: logger,
+	}
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    s.router.ServeHTTP(w, r)
+	s.router.ServeHTTP(w, r)
 }
 
 func (s *Server) Start(addr string) error {
-    s.logger.Infof("HTTP server starting on %s", addr)
-    return http.ListenAndServe(addr, s.router)
+	s.logger.Infof("HTTP server starting on %s", addr)
+	return http.ListenAndServe(addr, s.router)
 }
 
 func loggerMiddleware(logger *logrus.Logger) func(http.Handler) http.Handler {
-    return func(next http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            logger.Infof("%s %s", r.Method, r.URL.Path)
-            next.ServeHTTP(w, r)
-        })
-    }
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			logger.Infof("%s %s", r.Method, r.URL.Path)
+			next.ServeHTTP(w, r)
+		})
+	}
 }

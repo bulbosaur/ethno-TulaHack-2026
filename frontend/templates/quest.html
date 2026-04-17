@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Квест — Ethno</title>
+    <link rel="stylesheet" href="/static/css/quest.css" />
+  </head>
+  <body>
+    <div class="quest-wrapper">
+      <header class="quest-header">
+        <a href="/" class="back-link">← Назад</a>
+        <h1 id="quest-title">Загрузка...</h1>
+        <p id="quest-desc" class="quest-desc"></p>
+      </header>
+
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+      <div class="step-counter">
+        Шаг <span id="current-step-num">1</span> из
+        <span id="total-steps">0</span>
+      </div>
+
+      <main id="step-container" class="step-container">
+        <div class="loading">Загрузка квеста...</div>
+      </main>
+
+      <footer class="step-controls">
+        <button id="prev-btn" class="btn btn-secondary" disabled>Назад</button>
+        <button id="next-btn" class="btn btn-primary">Далее</button>
+      </footer>
+    </div>
+
+    <script src="/static/js/quest.js"></script>
+  </body>
+</html>

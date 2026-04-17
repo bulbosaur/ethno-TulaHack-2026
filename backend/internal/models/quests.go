@@ -17,16 +17,18 @@ type Quest struct {
 }
 
 type Step struct {
-	ID         string          `json:"id" db:"step_id"`
-	QuestID    string          `json:"-" db:"quest_id"`
-	Order      int             `json:"-" db:"step_order"`
-	Type       StepType        `json:"type" db:"step_type"`
-	Title      string          `json:"title" db:"title"`
-	RawContent json.RawMessage `json:"-" db:"content"`
-	Content    StepContent     `json:"content" db:"-"`
-	OnSuccess  *OnSuccess      `json:"onSuccess,omitempty" db:"on_success"`
+	ID          string          `json:"id" db:"id"`
+	QuestID     string          `json:"-" db:"quest_id"`
+	Order       int             `json:"-" db:"step_order"`
+	Type        StepType        `json:"type" db:"step_type"`
+	Title       string          `json:"title" db:"title"`
+	
+	RawContent    json.RawMessage `json:"-" db:"content"`
+	OnSuccessRaw  json.RawMessage `json:"-" db:"on_success"`
+	
+	Content   StepContent   `json:"content" db:"-"`
+	OnSuccess *OnSuccess    `json:"onSuccess,omitempty" db:"-"`
 }
-
 type StepType string
 
 const (
@@ -75,11 +77,11 @@ type QuestReward struct {
 }
 
 type UserProgress struct {
-	UserID         string    `json:"user_id" db:"user_id"`
-	QuestID        string    `json:"quest_id" db:"quest_id"`
-	CurrentStepID  string    `json:"current_step_id" db:"current_step_id"`
-	CompletedSteps []string  `json:"completed_steps" db:"completed_steps"`
-	Status         string    `json:"status" db:"status"`
-	StartedAt      time.Time `json:"started_at" db:"started_at"`
+	UserID         string     `json:"user_id" db:"user_id"`
+	QuestID        string     `json:"quest_id" db:"quest_id"`
+	CurrentStepID  string     `json:"current_step_id" db:"current_step_id"`
+	CompletedSteps []string   `json:"completed_steps" db:"completed_steps"`
+	Status         string     `json:"status" db:"status"`
+	StartedAt      time.Time  `json:"started_at" db:"started_at"`
 	CompletedAt    *time.Time `json:"completed_at,omitempty" db:"completed_at"`
 }

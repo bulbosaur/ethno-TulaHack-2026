@@ -49,6 +49,7 @@ func initServer(db *sql.DB, cfg config.ServerConfig, logger *logrus.Logger) *srv
 	userRepo := repository.NewUserRepository(db)
 	authService := auth.NewAuthService(userRepo, authProv)
 	folkRepo := repository.NewFolkRepository(db)
-    server := srv.NewServer(folkRepo, authService, &cfg, logger)
+	questRepo := repository.NewQuestRepository(db)
+    server := srv.NewServer(folkRepo, authService, &cfg, logger, questRepo)
 	return server
 }
