@@ -29,6 +29,9 @@ func NewServer(folkRepo *repository.FolkRepository, authService *auth.AuthServic
     r.Post("/api/register", authHandler.Register)
 	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
 
+	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "../frontend/templates/login.html")
+    })
 	r.Get("/register", func(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "../frontend/templates/register.html")
     })
