@@ -29,7 +29,7 @@ func (s *Service) GenerateJWT(user *models.User) (string, error) {
     }
     
     claims := &Claims{
-        UserID:   fmt.Sprintf("%d", user.ID),
+        UserID:   fmt.Sprintf("%v", user.ID),
         Email:    user.Email,
         Username: user.Username,
         Role:     user.Role,

@@ -1,6 +1,7 @@
 package srv
 
 import (
+	"ethno/internal/auth"
 	"ethno/internal/config"
 	"ethno/internal/repository"
 	handler "ethno/internal/transport/http/handlers"
@@ -15,7 +16,8 @@ type Server struct {
     logger *logrus.Logger
 }
 
-func NewServer(folkRepo *repository.FolkRepository, cfg *config.ServerConfig, logger *logrus.Logger) *Server {
+func NewServer(folkRepo *repository.FolkRepository, authService *auth.AuthService, cfg *config.ServerConfig, logger *logrus.Logger) *Server {
+	authHandler := handler.NewAuthHandler(authService, cfg)
     r := chi.NewRouter()
     r.Use(loggerMiddleware(logger))
 
@@ -24,7 +26,12 @@ func NewServer(folkRepo *repository.FolkRepository, cfg *config.ServerConfig, lo
         w.Write([]byte(`{"status":"ok"}`))
     })
 
+    r.Post("/api/register", authHandler.Register)
 	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
+
+	r.Get("/register", func(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "../frontend/templates/register.html")
+    })
 
 	fs := http.FileServer(http.Dir("../frontend/templates"))
     r.Handle("/*", http.StripPrefix("/", fs))

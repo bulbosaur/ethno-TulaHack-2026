@@ -3,10 +3,12 @@ package main
 import (
 	"database/sql"
 	"ethno/db"
+	"ethno/internal/auth"
 	"ethno/internal/config"
 	"ethno/internal/repository"
 	srv "ethno/internal/transport/http"
 	"net"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -40,7 +42,13 @@ func main() {
 
 
 func initServer(db *sql.DB, cfg config.ServerConfig, logger *logrus.Logger) *srv.Server {
+	authProv := auth.NewService(
+		cfg.JWT.SecretKey,
+		time.Duration(cfg.JWT.ExpiryHours)*time.Hour,
+	)
+	userRepo := repository.NewUserRepository(db)
+	authService := auth.NewAuthService(userRepo, authProv)
 	folkRepo := repository.NewFolkRepository(db)
-    server := srv.NewServer(folkRepo, &cfg, logger)
+    server := srv.NewServer(folkRepo, authService, &cfg, logger)
 	return server
 }
