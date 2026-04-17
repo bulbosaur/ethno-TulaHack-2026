@@ -1,8 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"ethno/db"
 	"ethno/internal/config"
+	srv "ethno/internal/transport/http"
+	"net"
 
 	"github.com/sirupsen/logrus"
 )
@@ -29,4 +32,13 @@ func main() {
     defer db.Close()
 
 	logger.Info("Successful connection to database")
+	server := initServer(db, cfg.Server, logger)
+	httpAddr := net.JoinHostPort(cfg.HTTP.Host, (cfg.HTTP.Port))
+	logger.Fatal(server.Start(httpAddr))
+}
+
+
+func initServer(db *sql.DB, cfg config.ServerConfig, logger *logrus.Logger) *srv.Server {
+    server := srv.NewServer(&cfg, logger)
+	return server
 }
