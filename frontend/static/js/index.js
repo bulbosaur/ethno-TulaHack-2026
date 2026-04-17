@@ -1,9 +1,24 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const ALLOWED_REGIONS = [
-    "Москва",
-    "Санкт-Петербург",
-    "Карачаево-Черкесская Республика",
-  ];
+document.addEventListener("DOMContentLoaded", async () => {
+  let allowedRegionNames = [];
+  let allowedRegionsMap = {};
+
+  try {
+    const res = await fetch("/api/regions?limit=1");
+    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+    const data = await res.json();
+
+    allowedRegionNames = data.map((r) => r.name);
+
+    allowedRegionsMap = data.reduce((acc, r) => {
+      acc[r.name.toLowerCase()] = r;
+      return acc;
+    }, {});
+
+    console.log("✅ Loaded regions from backend:", allowedRegionNames);
+  } catch (err) {
+    console.error("❌ Failed to load regions:", err);
+    allowedRegionNames = [];
+  }
 
   const map = L.map("map", {
     zoomControl: true,
@@ -39,23 +54,35 @@ document.addEventListener("DOMContentLoaded", () => {
     fillOpacity: 0.75,
   });
 
-  function updatePanel(feature) {
-    regionNameEl.textContent =
-      feature.properties.name || feature.properties.NAME_1 || "Регион";
-    regionInfoEl.textContent =
-      feature.properties.info ||
-      feature.properties.description ||
-      "Информация не указана.";
+  function updatePanel(feature, dbData = null) {
+    const name =
+      feature.properties.name || feature.properties.NAME_1 || "Region";
+    regionNameEl.textContent = name;
+
+    if (dbData) {
+      regionNameEl.textContent = dbData.title || name;
+      regionInfoEl.textContent =
+        dbData.summary ||
+        feature.properties.description ||
+        "Information not available.";
+    } else {
+      regionInfoEl.textContent =
+        feature.properties.info ||
+        feature.properties.description ||
+        "Information not available.";
+    }
     infoPanel.style.display = "block";
   }
 
   function onEachFeature(feature, layer) {
-    layer.bindTooltip(feature.properties.name || "Регион", { sticky: true });
+    layer.bindTooltip(feature.properties.name || "Region", { sticky: true });
     layer.on({
       mouseover: (e) => e.target.setStyle(highlightStyle()),
       mouseout: (e) => e.target.setStyle(defaultStyle()),
       click: (e) => {
-        updatePanel(feature);
+        const name = feature.properties.name || feature.properties.NAME_1;
+        const dbData = allowedRegionsMap[name.toLowerCase()];
+        updatePanel(feature, dbData);
         map.fitBounds(e.target.getBounds(), { padding: [40, 40], maxZoom: 7 });
       },
     });
@@ -66,13 +93,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fetch(GEOJSON_URL)
     .then((res) => {
-      if (!res.ok) throw new Error("Не удалось загрузить карту");
+      if (!res.ok) throw new Error("Failed to load map");
       return res.json();
     })
     .then((data) => {
       const geoLayer = L.geoJSON(data, {
         style: defaultStyle,
         onEachFeature: onEachFeature,
+        filter: function (feature) {
+          if (allowedRegionNames.length === 0) return true;
+
+          const name = (
+            feature.properties.name ||
+            feature.properties.NAME_1 ||
+            ""
+          )
+            .toLowerCase()
+            .trim();
+
+          return allowedRegionNames.some(
+            (allowed) => allowed.toLowerCase() === name,
+          );
+        },
       }).addTo(map);
 
       setTimeout(() => {
@@ -82,38 +124,35 @@ document.addEventListener("DOMContentLoaded", () => {
           (l) => l.getBounds && l.getBounds().isValid(),
         );
 
-        if (ALLOWED_REGIONS.length > 0) {
-          console.log(
-            "📦 Реальные названия в GeoJSON:",
-            validLayers.map(
-              (l) => l.feature.properties.name || l.feature.properties.NAME_1,
-            ),
-          );
-        }
-
-        const pool =
-          ALLOWED_REGIONS.length > 0
+        const targetPool =
+          allowedRegionNames.length > 0
             ? validLayers.filter((layer) => {
                 const name = (
                   layer.feature.properties.name ||
                   layer.feature.properties.NAME_1 ||
                   ""
                 )
-                  .trim()
-                  .toLowerCase();
-                return ALLOWED_REGIONS.some(
+                  .toLowerCase()
+                  .trim();
+                return allowedRegionNames.some(
                   (allowed) => allowed.toLowerCase() === name,
                 );
               })
             : validLayers;
 
-        const targetPool = pool.length > 0 ? pool : validLayers;
         if (targetPool.length === 0) return;
 
         const randomLayer =
           targetPool[Math.floor(Math.random() * targetPool.length)];
         randomLayer.setStyle(highlightStyle());
-        updatePanel(randomLayer.feature);
+
+        const name =
+          randomLayer.feature.properties.name ||
+          randomLayer.feature.properties.NAME_1;
+        const dbData = allowedRegionsMap[name.toLowerCase()];
+
+        updatePanel(randomLayer.feature, dbData);
+
         map.fitBounds(randomLayer.getBounds(), {
           padding: [50, 50],
           animate: true,
@@ -124,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch((err) => {
       document.getElementById("map").innerHTML = `
         <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ef4444;padding:20px;">
-          ${err.message}<br><small>Для локального теста используйте Live Server</small>
+          ${err.message}<br><small>For local testing, use Live Server</small>
         </div>`;
     });
 });
