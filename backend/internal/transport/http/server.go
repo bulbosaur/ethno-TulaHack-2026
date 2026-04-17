@@ -21,7 +21,10 @@ func NewServer(cfg *config.ServerConfig, logger *logrus.Logger) *Server {
         w.WriteHeader(http.StatusOK)
         w.Write([]byte(`{"status":"ok"}`))
     })
-	
+
+	fs := http.FileServer(http.Dir("../frontend/templates"))
+    r.Handle("/*", http.StripPrefix("/", fs))
+
     return &Server{
         router: r,
         logger: logger,

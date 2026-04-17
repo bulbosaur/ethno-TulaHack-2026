@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ethno</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>ЭТНО</h1>
+        <p>Кликните на регион или подождите автоподсветки</p>
+      </header>
+
+      <div id="map"></div>
+
+      <main class="landing-buttons">
+        <a href="/login" class="btn btn-primary btn-large">Войти</a>
+        <a href="/register" class="btn btn-secondary btn-large"
+          >Зарегистрироваться</a
+        >
+      </main>
+    </div>
+
+    <div id="info-panel">
+      <button class="close-btn" id="close-panel" aria-label="Закрыть">
+        &times;
+      </button>
+      <h2 id="region-name"></h2>
+      <p id="region-info"></p>
+    </div>
+  </body>
+</html>
