@@ -5,9 +5,15 @@ document.addEventListener("DOMContentLoaded", () => {
     "Карачаево-Черкесская Республика",
   ];
 
-  const map = L.map("map", { zoomControl: true }).setView([60, 90], 3);
+  const map = L.map("map", {
+    zoomControl: true,
+  }).setView([60, 90], 3);
+
+  map.attributionControl.setPrefix("");
+
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap contributors",
+    attribution:
+      '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 18,
   }).addTo(map);
 
