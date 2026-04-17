@@ -3,7 +3,7 @@ package srv
 import (
 	"ethno/internal/config"
 	"ethno/internal/repository"
-	"ethno/internal/transport/http/handlers"
+	handler "ethno/internal/transport/http/handlers"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -24,7 +24,7 @@ func NewServer(folkRepo *repository.FolkRepository, cfg *config.ServerConfig, lo
         w.Write([]byte(`{"status":"ok"}`))
     })
 
-	r.Get("/api/regions", handlers.GetRandomFolksHandler(folkRepo))
+	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
 
 	fs := http.FileServer(http.Dir("../frontend/templates"))
     r.Handle("/*", http.StripPrefix("/", fs))
