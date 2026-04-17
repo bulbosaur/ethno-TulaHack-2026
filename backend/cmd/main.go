@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"ethno/db"
 	"ethno/internal/config"
+	"ethno/internal/repository"
 	srv "ethno/internal/transport/http"
 	"net"
 
@@ -39,6 +40,7 @@ func main() {
 
 
 func initServer(db *sql.DB, cfg config.ServerConfig, logger *logrus.Logger) *srv.Server {
-    server := srv.NewServer(&cfg, logger)
+	folkRepo := repository.NewFolkRepository(db)
+    server := srv.NewServer(folkRepo, &cfg, logger)
 	return server
 }

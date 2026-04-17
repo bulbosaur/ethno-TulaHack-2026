@@ -12,7 +12,6 @@ type Folk struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-
 type CreateFolkDTO struct {
 	Name    string
 	Lat     *float64

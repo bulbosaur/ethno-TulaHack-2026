@@ -60,6 +60,36 @@ func (r *FolkRepository) GetByID(ctx context.Context, id string) (*models.Folk, 
 	return &f, nil
 }
 
+func (r *FolkRepository) GetRandom(ctx context.Context, limit int) ([]models.Folk, error) {
+	query := `
+		SELECT id, name, lat, lon, title, summary, created_at 
+		FROM folks 
+		ORDER BY RANDOM() 
+		LIMIT $1
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get random folks: %w", err)
+	}
+	defer rows.Close()
+
+	var folks []models.Folk
+	for rows.Next() {
+		var f models.Folk
+		if err := rows.Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &f.Summary, &f.CreatedAt); err != nil {
+			return nil, fmt.Errorf("failed to scan folk row: %w", err)
+		}
+		folks = append(folks, f)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	return folks, nil
+}
+
 func (r *FolkRepository) Update(ctx context.Context, id string, dto models.UpdateFolkDTO) (*models.Folk, error) {
 	query := `
         UPDATE folks 

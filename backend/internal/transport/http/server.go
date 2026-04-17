@@ -2,6 +2,8 @@ package srv
 
 import (
 	"ethno/internal/config"
+	"ethno/internal/repository"
+	"ethno/internal/transport/http/handlers"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -13,7 +15,7 @@ type Server struct {
     logger *logrus.Logger
 }
 
-func NewServer(cfg *config.ServerConfig, logger *logrus.Logger) *Server {
+func NewServer(folkRepo *repository.FolkRepository, cfg *config.ServerConfig, logger *logrus.Logger) *Server {
     r := chi.NewRouter()
     r.Use(loggerMiddleware(logger))
 
@@ -21,6 +23,8 @@ func NewServer(cfg *config.ServerConfig, logger *logrus.Logger) *Server {
         w.WriteHeader(http.StatusOK)
         w.Write([]byte(`{"status":"ok"}`))
     })
+
+	r.Get("/api/regions", handlers.GetRandomFolksHandler(folkRepo))
 
 	fs := http.FileServer(http.Dir("../frontend/templates"))
     r.Handle("/*", http.StripPrefix("/", fs))
