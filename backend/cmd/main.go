@@ -19,7 +19,7 @@ func main() {
 
 	err = db.RunMigrations(cfg.Database.DSN())
 	if err != nil {
-		logger.Fatalf("Mailed to make migrations: %v", err)
+		logger.Fatalf("Failed to make migrations: %v", err)
 	}
 
 	db, err := db.Connect(cfg.Database)
