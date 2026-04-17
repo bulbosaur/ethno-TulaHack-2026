@@ -32,11 +32,11 @@ func NewServer(folkRepo *repository.FolkRepository, authService *auth.AuthServic
 	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
 	
 	r.Group(func(r chi.Router) {
-    	r.Use(middleware.AuthFromCookie(authService.AuthProv, logger, "jwt_token"))
+    	r.Use(middleware.AuthFromCookie(authService.AuthProv, logger, "auth_token"))
         
         r.Get("/api/me", authHandler.GetMe)
     })
-	
+
 	r.Get("/profile", func(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, "../frontend/templates/profile.html")
 	})
