@@ -11,3 +11,20 @@ type Folk struct {
 	Summary   *string   `json:"summary,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+
+type CreateFolkDTO struct {
+	Name    string
+	Lat     *float64
+	Lon     *float64
+	Title   *string
+	Summary *string
+}
+
+type UpdateFolkDTO struct {
+	Name    string
+	Lat     *float64
+	Lon     *float64
+	Title   *string
+	Summary *string
+}
