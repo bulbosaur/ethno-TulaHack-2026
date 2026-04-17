@@ -11,4 +11,3 @@ CREATE TABLE IF NOT EXISTS folks (
 );
 
 CREATE INDEX IF NOT EXISTS idx_folks_name ON folks(name);
-
