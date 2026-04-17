@@ -27,6 +27,7 @@ func NewServer(folkRepo *repository.FolkRepository, authService *auth.AuthServic
     })
 
     r.Post("/api/register", authHandler.Register)
+    r.Post("/api/login", authHandler.Login)
 	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
 
 	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
