@@ -38,6 +38,13 @@ body {
   line-height: 1.5;
 }
 
+/* .main-content {
+  background-image: url("/static/assets/background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+} */
+
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -45,7 +52,10 @@ body {
 
 .sidebar {
   width: 220px;
-  background: var(--sidebar-bg);
+  background-image: url("/static/assets/c.jpg");
+  background-size: 150%;
+  background-position: right 20px bottom 60px;
+  background-repeat: no-repeat;
   border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
