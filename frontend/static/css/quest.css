@@ -487,7 +487,12 @@ body {
   }
 
   .map-container {
-    height: 400px;
+    height: 500px !important; /* ← Обязательно! */
+    min-height: 400px;
+    width: 100%;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
   }
 
   .toy-card {
