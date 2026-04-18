@@ -95,3 +95,25 @@ type UserProgress struct {
 	StartedAt      time.Time  `json:"started_at" db:"started_at"`
 	CompletedAt    *time.Time `json:"completed_at,omitempty" db:"completed_at"`
 }
+
+type MapMatchContent struct {
+	Goal    string      `json:"goal"`
+	Toys    []Toy       `json:"toys"`
+	Regions []MapRegion `json:"regions"`
+}
+
+type Toy struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
+}
+
+type MapRegion struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Center      []float64 `json:"center"`
+	CorrectToys []string  `json:"correct_toys"`
+}
+
+func (MapMatchContent) isStepContent() {}
