@@ -37,10 +37,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       const mockQuests = [
         {
           id: 1,
-          title: "Тайны северных народов",
-          description: "Исследуй традиции и обряды коренных народов Севера",
+          title: "Тропа мастеров Ханты",
+          description:
+            "Познакомься с древними ремёслами и традициями хантов. Узнай о тамгах, узорах и создай свой оберег.",
           region: "Ямал",
           difficulty: "Средний",
+          slug: "khanty-crafts",
         },
         {
           id: 2,
@@ -48,6 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           description: "Погрузись в культуру степных народов и их миграции",
           region: "Алтай",
           difficulty: "Лёгкий",
+          slug: "nomad-path",
         },
         {
           id: 3,
@@ -55,6 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           description: "Узнай о верованиях и ремёслах сибирских народов",
           region: "Бурятия",
           difficulty: "Сложный",
+          slug: "taiga-voice",
         },
       ];
 
@@ -74,7 +78,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     questsGrid.innerHTML = quests
       .map(
         (quest) => `
-        <div class="quest-card" data-id="${quest.id}">
+        <div class="quest-card" data-id="${quest.id}" data-slug="${quest.slug}">
           <h3>${escapeHtml(quest.title)}</h3>
           <p>${escapeHtml(quest.description)}</p>
           <div class="quest-meta">
@@ -88,8 +92,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.querySelectorAll(".quest-card").forEach((card) => {
       card.addEventListener("click", () => {
-        const id = card.dataset.id;
-        console.log(`Переход к квесту #${id}`);
+        const slug = card.dataset.slug;
+        window.location.href = `/quests/${slug}`;
       });
     });
   }
