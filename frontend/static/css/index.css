@@ -186,6 +186,7 @@ body {
 }
 
 .quest-card {
+  text-decoration: none;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
@@ -230,12 +231,15 @@ body {
 .quest-info h4 {
   font-size: 16px;
   margin-bottom: 4px;
+  text-decoration: none;
+  color: var(--text);
 }
 
 .quest-info p {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.4;
+  text-decoration: none;
 }
 
 .quest-meta {
