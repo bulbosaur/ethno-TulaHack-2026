@@ -127,14 +127,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       )?.correct;
 
       if (correct) {
-        resultEl.textContent = "✓ Правильно!";
+        resultEl.textContent = "Правильно!";
         resultEl.className = "quiz-result success";
         document
           .querySelector(`[data-id="${selected}"]`)
           .classList.add("correct");
         els.nextBtn.onclick = goToNext;
       } else {
-        resultEl.textContent = "✗ Попробуйте ещё раз";
+        resultEl.textContent = "Попробуйте ещё раз";
         resultEl.className = "quiz-result error";
         document
           .querySelector(`[data-id="${selected}"]`)
@@ -145,20 +145,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function renderBuilder(step) {
-    const { base, patterns, goal } = step.content;
+    console.log("RENDER BUILDER CALLED");
+    console.log("Step:", step);
+    console.log("Step type:", step.type);
+    console.log("Step content:", step.content);
+    console.log("Patterns:", step.content?.patterns);
 
-    const icons = {
-      box: "📦",
-      solar: "☀️",
-      waves: "🌊",
-      bear_paw: "🐾",
-    };
+    const { base, patterns, goal } = step.content;
 
     const patternsHtml = patterns
       .map(
         (p) => `
-      <button class="pattern-btn" data-pattern="${p}">
-        ${icons[p] || p} ${p}
+      <button class="pattern-btn" data-id="${p.id}" data-file="${p.file}" data-symbol="${p.symbol || "🎨"}">
+        ${p.name}
       </button>
     `,
       )
@@ -168,7 +167,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div class="step-builder">
         <h2>${step.title}</h2>
         <p>${goal}</p>
-        <div id="builder-canvas" class="builder-canvas">${icons[base] || base}</div>
+        <div id="builder-canvas" class="builder-canvas">
+          ${base && base !== "empty" ? `<span style="font-size:3rem;">${base}</span>` : `<span style="color:#94a3b8;">Нажмите на элементы ниже</span>`}
+        </div>
         <div class="patterns-palette">${patternsHtml}</div>
         <div id="builder-hint" class="hint" hidden>Нажмите "Далее" для проверки</div>
       </div>
@@ -177,27 +178,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelectorAll(".pattern-btn").forEach((btn) => {
       btn.onclick = () => {
         btn.classList.toggle("active");
-        const pattern = btn.dataset.pattern;
-        if (state.builderSelection.includes(pattern)) {
+        const id = btn.dataset.id;
+
+        if (state.builderSelection.includes(id)) {
           state.builderSelection = state.builderSelection.filter(
-            (p) => p !== pattern,
+            (p) => p !== id,
           );
         } else {
-          state.builderSelection.push(pattern);
+          state.builderSelection.push(id);
         }
+
         const canvas = document.getElementById("builder-canvas");
-        canvas.textContent = `${icons[base]} ${state.builderSelection.map((p) => icons[p]).join(" ")}`;
+        canvas.innerHTML = state.builderSelection
+          .map((selId) => {
+            const item = patterns.find((p) => p.id === selId);
+            return `<img src="${item.file}" alt="${item.name}" style="width:80px;height:80px;object-fit:contain;margin:4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'"><span style="display:none;font-size:48px;">${item.symbol}</span>`;
+          })
+          .join("");
       };
     });
 
     els.nextBtn.onclick = () => {
-      if (state.builderSelection.includes("solar")) {
+      if (state.builderSelection.includes("solnce")) {
         document.getElementById("builder-canvas").style.background = "#f0fdf4";
-        document.getElementById("builder-canvas").textContent += " ✓";
+        document.getElementById("builder-canvas").innerHTML +=
+          "<div style='color:#22c55e; font-weight:bold; margin-top:8px;'>Отлично!</div>";
         els.nextBtn.onclick = goToNext;
       } else {
         document.getElementById("builder-hint").textContent =
-          "💡 Подсказка: добавьте солнечный знак в центр";
+          "💡 Подсказка: обязательно добавьте узор «Солнце»";
         document.getElementById("builder-hint").hidden = false;
         document.getElementById("builder-canvas").style.background = "#fef2f2";
       }

@@ -60,10 +60,20 @@ type QuizOption struct {
 }
 
 type BuilderContent struct {
-	Base     string   `json:"base"`
-	Patterns []string `json:"patterns"`
-	Goal     string   `json:"goal"`
+    Base      string           `json:"base"`
+    Goal      string           `json:"goal"`
+    Required  []string         `json:"required,omitempty"`
+    Positions []string         `json:"positions,omitempty"`
+    Patterns  []PatternItem    `json:"patterns"`
 }
+
+type PatternItem struct {
+    ID     string `json:"id"`
+    Name   string `json:"name"`
+    File   string `json:"file"`
+    Symbol string `json:"symbol"`
+}
+
 func (BuilderContent) isStepContent() {}
 
 type OnSuccess struct {
