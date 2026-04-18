@@ -2,8 +2,8 @@
   --bg: #f8fafc;
   --text: #0f172a;
   --muted: #64748b;
-  --primary: rgb(247, 119, 198);
-  --primary-hover: #eb2577;
+  --primary: #ef4444;
+  --primary-hover: #dc2626;
   --sidebar-bg: #ffffff;
   --sidebar-border: #e2e8f0;
   --card-bg: #ffffff;
@@ -37,13 +37,6 @@ body {
   color: var(--text);
   line-height: 1.5;
 }
-
-/* .main-content {
-  background-image: url("/static/assets/background.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-} */
 
 .app-layout {
   display: flex;

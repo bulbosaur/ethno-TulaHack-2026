@@ -124,17 +124,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
     const data = await res.json();
 
-    console.log("📦 API Response:", data);
-    if (data[0]) {
-      console.log("🔑 Keys:", Object.keys(data[0]));
-      console.log("📝 First item:", JSON.stringify(data[0], null, 2));
-    }
-
-    allowedRegionNames = data.map((r) => r.name || r.Name || r.title || "");
-
     allowedRegionNames = data.map((r) => r.name);
     allowedRegionsMap = data.reduce((acc, r) => {
-      acc[r.name.toLowerCase()] = r;
+      const name = r.name || "";
+      const key = name.toLowerCase().trim();
+      acc[key] = r;
+      if (key.includes("крым")) {
+        acc["крым"] = r;
+        acc["республика крым"] = r;
+        acc["crimea"] = r;
+      }
       return acc;
     }, {});
 
@@ -169,8 +168,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const highlightStyle = () => ({
     weight: 2,
-    color: "#eb2577",
-    fillColor: "rgb(247, 119, 198)",
+    color: "#dc2626",
+    fillColor: "#ef4444",
     fillOpacity: 0.75,
   });
 
@@ -236,13 +235,56 @@ document.addEventListener("DOMContentLoaded", async () => {
   const GEOJSON_URL =
     "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/russia.geojson";
 
+  const crimeaGeoJSON = {
+    type: "Feature",
+    properties: {
+      name: "Республика Крым",
+      NAME_1: "Республика Крым",
+    },
+    geometry: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [33.9013, 44.3906],
+          [34.1833, 44.3356],
+          [34.4292, 44.3356],
+          [34.7792, 44.4042],
+          [35.1292, 44.5069],
+          [35.4792, 44.6611],
+          [35.8292, 44.8708],
+          [36.1792, 45.0528],
+          [36.4292, 45.1806],
+          [36.5792, 45.2639],
+          [36.5792, 45.3194],
+          [36.4292, 45.3472],
+          [36.1792, 45.3472],
+          [35.8292, 45.3194],
+          [35.4792, 45.2639],
+          [35.1292, 45.1806],
+          [34.7792, 45.0528],
+          [34.4292, 44.8708],
+          [34.1833, 44.6611],
+          [33.9013, 44.5069],
+          [33.7013, 44.4042],
+          [33.7013, 44.3356],
+          [33.9013, 44.3906],
+        ],
+      ],
+    },
+  };
+
   fetch(GEOJSON_URL)
     .then((res) => {
-      if (!res.ok) throw new Error("Failed to load map");
+      if (!res.ok) throw new Error("Failed to load Russia map");
       return res.json();
     })
-    .then((data) => {
-      const geoLayer = L.geoJSON(data, {
+    .then((russiaData) => {
+      L.geoJSON(russiaData, {
+        style: defaultStyle,
+        onEachFeature: onEachFeature,
+      }).addTo(map);
+
+      L.geoJSON(crimeaGeoJSON, {
         style: defaultStyle,
         onEachFeature: onEachFeature,
       }).addTo(map);
@@ -250,10 +292,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => {
         map.invalidateSize();
 
-        const allLayers = geoLayer.getLayers();
-        const validLayers = allLayers.filter(
-          (l) => l.getBounds && l.getBounds().isValid(),
-        );
+        const allLayers = [];
+        map.eachLayer((layer) => {
+          if (layer.feature && layer.getBounds && layer.getBounds().isValid()) {
+            allLayers.push(layer);
+          }
+        });
+
+        const validLayers = allLayers;
 
         const layersWithDbData = validLayers.filter((layer) => {
           const name = (
