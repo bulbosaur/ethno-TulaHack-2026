@@ -29,34 +29,23 @@ function renderMarkdown(text) {
 document.addEventListener("DOMContentLoaded", async () => {
   let allowedRegionNames = [];
   let allowedRegionsMap = {};
-
   try {
     const res = await fetch("/api/regions?limit=1");
     if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
     const data = await res.json();
-
     allowedRegionNames = data.map((r) => r.name);
-
     allowedRegionsMap = data.reduce((acc, r) => {
       acc[r.name.toLowerCase()] = r;
       return acc;
     }, {});
-
-    console.log("Loaded regions from backend:", allowedRegionNames);
   } catch (err) {
     console.error("Failed to load regions:", err);
-    allowedRegionNames = [];
   }
 
-  const map = L.map("map", {
-    zoomControl: true,
-  }).setView([60, 90], 3);
-
+  const map = L.map("map", { zoomControl: true }).setView([60, 90], 3);
   map.attributionControl.setPrefix("");
-
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution:
-      '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    attribution: "© OpenStreetMap contributors",
     maxZoom: 18,
   }).addTo(map);
 
@@ -139,21 +128,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const geoLayer = L.geoJSON(data, {
         style: defaultStyle,
         onEachFeature: onEachFeature,
-        // filter: function (feature) {
-        //   if (allowedRegionNames.length === 0) return true;
-
-        //   const name = (
-        //     feature.properties.name ||
-        //     feature.properties.NAME_1 ||
-        //     ""
-        //   )
-        //     .toLowerCase()
-        //     .trim();
-
-        //   return allowedRegionNames.some(
-        //     (allowed) => allowed.toLowerCase() === name,
-        //   );
-        // },
       }).addTo(map);
 
       setTimeout(() => {
@@ -205,6 +179,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           ${err.message}<br><small>For local testing, use Live Server</small>
         </div>`;
     });
+
+  await updateAuthUI();
+
+  setTimeout(loadQuests, 500);
 });
 
 async function loadQuests() {
@@ -251,3 +229,43 @@ async function loadQuests() {
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(loadQuests, 500);
 });
+
+async function updateAuthUI() {
+  const nav = document.querySelector(".sidebar-nav");
+  if (!nav) return;
+
+  try {
+    const res = await fetch("/api/me", { credentials: "include" });
+
+    if (res.ok) {
+      const user = await res.json();
+      nav.innerHTML = `
+        <a href="/profile" class="sidebar-link">👤 ${user.username || "Личный кабинет"}</a>
+        <button id="logout-btn" class="sidebar-link" style="background:none;border:none;cursor:pointer;text-align:left;width:100%;font:inherit;color:var(--text);padding:12px 16px;border-radius:8px;">Выйти</button>
+      `;
+
+      document
+        .getElementById("logout-btn")
+        ?.addEventListener("click", async (e) => {
+          e.preventDefault();
+          await fetch("/api/logout", {
+            method: "POST",
+            credentials: "include",
+          });
+          updateAuthUI();
+          window.location.href = "/";
+        });
+    } else {
+      nav.innerHTML = `
+        <a href="/login" class="sidebar-link">Войти</a>
+        <a href="/register" class="sidebar-link">Зарегистрироваться</a>
+      `;
+    }
+  } catch (err) {
+    console.warn("Auth check failed:", err);
+    nav.innerHTML = `
+      <a href="/login" class="sidebar-link">Войти</a>
+      <a href="/register" class="sidebar-link">Зарегистрироваться</a>
+    `;
+  }
+}

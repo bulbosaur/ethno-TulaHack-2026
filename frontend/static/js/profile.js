@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       method: "POST",
       credentials: "include",
     });
-    window.location.href = "/login.html";
+    window.location.href = "/";
   });
 
   async function loadQuestRecommendations() {

@@ -150,3 +150,13 @@ a.btn-secondary:hover {
   background: #f1f5f9;
   border-color: var(--primary);
 }
+
+.sidebar-link:hover {
+  background: var(--card-hover);
+  border-color: var(--card-border);
+}
+
+#logout-btn:hover {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
