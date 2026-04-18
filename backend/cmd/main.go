@@ -7,6 +7,7 @@ import (
 	"ethno/internal/config"
 	"ethno/internal/repository"
 	srv "ethno/internal/transport/http"
+	"log"
 	"net"
 	"time"
 
@@ -32,6 +33,11 @@ func main() {
     if err != nil {
         logger.Fatalf("Failed to connect to database: %v", err)
     }
+
+	_, err = db.Exec("SET NAMES 'UTF8'")
+	if err != nil {
+		log.Printf("Warning: could not set client encoding: %v", err)
+	}
     defer db.Close()
 
 	logger.Info("Successful connection to database")
