@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"ethno/internal/models"
 	"fmt"
 )
@@ -176,4 +177,32 @@ func (r *FolkRepository) List(ctx context.Context) ([]models.Folk, error) {
 	}
 
 	return folks, nil
+}
+
+func (r *FolkRepository) GetAll(ctx context.Context) ([]models.Folk, error) {
+	query := `SELECT id, name, title, summary, created_at FROM folks ORDER BY name`
+	
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var folks []models.Folk
+	for rows.Next() {
+		var f models.Folk
+		var summary sql.NullString
+
+		err := rows.Scan(&f.ID, &f.Name, &f.Title, &summary, &f.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		
+		if summary.Valid {
+			f.RawSummary = json.RawMessage(summary.String)
+		}
+		folks = append(folks, f)
+	}
+
+	return folks, rows.Err()
 }

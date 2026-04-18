@@ -85,3 +85,36 @@ func GetFolkByIDHandler(repo *repository.FolkRepository) http.HandlerFunc {
 		}
 	}
 }
+
+func GetFolksHandler(repo *repository.FolkRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		folks, err := repo.GetAll(r.Context())
+		if err != nil {
+			log.Printf("GetFolksHandler: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error": "failed to load regions"}`))
+			return
+		}
+
+		if folks == nil {
+			folks = []models.Folk{}
+		}
+
+		for i := range folks {
+			if folks[i].RawSummary != nil {
+				content, err := f.ParseFolkContent(folks[i].RawSummary)
+				if err != nil {
+					log.Printf("Failed to parse folk content for %s: %v", folks[i].ID, err)
+					continue
+				}
+				folks[i].Summary = content
+				folks[i].RawSummary = nil
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(folks); err != nil {
+			log.Printf("Failed to encode response: %v", err)
+		}
+	}
+}

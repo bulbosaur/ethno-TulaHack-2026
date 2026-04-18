@@ -37,7 +37,9 @@ func NewServer(
 
 	r.Post("/api/register", authHandler.Register)
 	r.Post("/api/login", authHandler.Login)
-	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
+	r.Get("/api/regions", handler.GetFolksHandler(folkRepo))
+	r.Get("/api/regions/random", handler.GetRandomFolksHandler(folkRepo))
+	r.Get("/api/regions/{id}", handler.GetFolkByIDHandler(folkRepo))
 	r.Post("/api/logout", authHandler.Logout)
 	
 	questHandler.RegisterRoutes(r) 
