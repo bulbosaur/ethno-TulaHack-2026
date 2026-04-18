@@ -35,6 +35,7 @@ const (
 	StepTypeIntro  StepType = "intro"
 	StepTypeQuiz   StepType = "quiz"
 	StepTypeBuilder StepType = "builder"
+	StepTypeMapMatch StepType = "map_match"
 )
 
 type StepContent interface {

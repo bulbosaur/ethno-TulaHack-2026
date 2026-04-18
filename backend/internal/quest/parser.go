@@ -1,4 +1,4 @@
-package quests
+package quest
 
 import (
 	"encoding/json"
@@ -17,6 +17,10 @@ var contentParsers = map[models.StepType]func(json.RawMessage) (models.StepConte
 	},
 	models.StepTypeBuilder: func(raw json.RawMessage) (models.StepContent, error) {
 		var c models.BuilderContent
+		return c, json.Unmarshal(raw, &c)
+	},
+	models.StepTypeMapMatch: func(raw json.RawMessage) (models.StepContent, error) {
+		var c models.MapMatchContent
 		return c, json.Unmarshal(raw, &c)
 	},
 }

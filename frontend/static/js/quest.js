@@ -62,6 +62,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         break;
       case "builder":
         renderBuilder(step);
+      case "map_match":
+        renderMapMatch(step);
         break;
       default:
         els.container.innerHTML = `<p>Неизвестный тип шага: ${step.type}</p>`;
@@ -251,5 +253,144 @@ document.addEventListener("DOMContentLoaded", async () => {
   function updateProgress() {
     const percent = ((state.currentIndex + 1) / state.quest.steps.length) * 100;
     els.progress.style.width = `${percent}%`;
+  }
+
+  function renderMapMatch(step) {
+    console.log("renderMapMatch START");
+    const { goal, toys, regions } = step.content;
+    state.matchedToys = {};
+    state.selectedToy = null;
+
+    els.container.innerHTML = `
+    <div class="step-map-match">
+      <h2>${step.title}</h2>
+      <p>${goal}</p>
+      
+      <div class="map-match-layout">
+        <!-- Панель с игрушками -->
+        <div class="toys-panel">
+          <h3>Игрушки:</h3>
+          <div class="toys-list">
+            ${toys
+              .map(
+                (toy) => `
+              <div class="toy-card" draggable="true" data-id="${toy.id}">
+                <img src="${toy.image}" alt="${toy.name}" />
+                <div class="toy-info">
+                  <strong>${toy.name}</strong>
+                  <p>${toy.description}</p>
+                </div>
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+        </div>
+
+        <!-- Карта -->
+        <div class="map-container" id="match-map"></div>
+      </div>
+
+      <div id="match-result" class="match-result" hidden></div>
+    </div>
+  `;
+
+    const map = L.map("match-map").setView([55.5, 40.0], 6);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 8,
+      minZoom: 5,
+    }).addTo(map);
+
+    const regionMarkers = {};
+    regions.forEach((region) => {
+      const marker = L.circleMarker(region.center, {
+        radius: 30,
+        fillColor: "#e2e8f0",
+        color: "#94a3b8",
+        weight: 2,
+        fillOpacity: 0.3,
+      }).addTo(map);
+
+      marker.bindTooltip(region.name, { permanent: true, direction: "center" });
+      marker.bindPopup(`<strong>${region.name}</strong>`);
+      regionMarkers[region.id] = marker;
+
+      marker.on("dragover", (e) => e.preventDefault());
+      marker.on("drop", (e) => {
+        e.preventDefault();
+        const toyId = e.dataTransfer.getData("text/plain");
+        handleMatch(toyId, region.id);
+      });
+
+      marker.on("click", () => {
+        if (state.selectedToy) {
+          handleMatch(state.selectedToy, region.id);
+        }
+      });
+    });
+
+    document.querySelectorAll(".toy-card").forEach((card) => {
+      const toyId = card.dataset.id;
+
+      card.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", toyId);
+        card.classList.add("dragging");
+      });
+      card.addEventListener("dragend", () => card.classList.remove("dragging"));
+
+      card.addEventListener("click", () => {
+        document
+          .querySelectorAll(".toy-card")
+          .forEach((c) => c.classList.remove("selected"));
+        card.classList.add("selected");
+        state.selectedToy = toyId;
+      });
+    });
+
+    function handleMatch(toyId, regionId) {
+      const toy = toys.find((t) => t.id === toyId);
+      const region = regions.find((r) => r.id === regionId);
+      const isCorrect = region.correct_toys.includes(toyId);
+
+      if (isCorrect) {
+        state.matchedToys[toyId] = regionId;
+
+        const marker = regionMarkers[regionId];
+        marker.setStyle({ fillColor: "#22c55e", fillOpacity: 0.6 });
+        marker.setPopupContent(
+          `<strong>${region.name}</strong><br>✓ ${toy.name}`,
+        );
+        marker.openPopup();
+
+        const toyCard = document.querySelector(`[data-id="${toyId}"]`);
+        toyCard.classList.add("matched");
+        toyCard.draggable = false;
+
+        if (Object.keys(state.matchedToys).length === toys.length) {
+          const resultEl = document.getElementById("match-result");
+          resultEl.textContent = "🎉 Отлично! Все игрушки нашли свои регионы!";
+          resultEl.className = "match-result success";
+          resultEl.hidden = false;
+          els.nextBtn.disabled = false;
+          els.nextBtn.onclick = goToNext;
+        }
+      } else {
+        const marker = regionMarkers[regionId];
+        marker.setStyle({ fillColor: "#ef4444", fillOpacity: 0.6 });
+        setTimeout(() => {
+          marker.setStyle({ fillColor: "#e2e8f0", fillOpacity: 0.3 });
+        }, 1000);
+
+        const resultEl = document.getElementById("match-result");
+        resultEl.textContent = `✗ ${toy.name} не из ${region.name}. Попробуй другой регион!`;
+        resultEl.className = "match-result error";
+        resultEl.hidden = false;
+        setTimeout(() => {
+          resultEl.hidden = true;
+        }, 2000);
+      }
+    }
+
+    els.nextBtn.disabled = true;
   }
 });
