@@ -100,21 +100,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       const geoLayer = L.geoJSON(data, {
         style: defaultStyle,
         onEachFeature: onEachFeature,
-        filter: function (feature) {
-          if (allowedRegionNames.length === 0) return true;
+        // filter: function (feature) {
+        //   if (allowedRegionNames.length === 0) return true;
 
-          const name = (
-            feature.properties.name ||
-            feature.properties.NAME_1 ||
-            ""
-          )
-            .toLowerCase()
-            .trim();
+        //   const name = (
+        //     feature.properties.name ||
+        //     feature.properties.NAME_1 ||
+        //     ""
+        //   )
+        //     .toLowerCase()
+        //     .trim();
 
-          return allowedRegionNames.some(
-            (allowed) => allowed.toLowerCase() === name,
-          );
-        },
+        //   return allowedRegionNames.some(
+        //     (allowed) => allowed.toLowerCase() === name,
+        //   );
+        // },
       }).addTo(map);
 
       setTimeout(() => {
