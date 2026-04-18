@@ -1,3 +1,31 @@
+function renderMarkdown(text) {
+  if (!text) return "";
+
+  let html = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  html = html
+    .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+    .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+    .replace(/^# (.*$)/gim, "<h1>$1</h1>");
+
+  html = html
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+  if (html.includes("\n- ") || html.startsWith("- ")) {
+    html = html
+      .replace(/^\- (.*$)/gim, "<li>$1</li>")
+      .replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
+  }
+
+  html = html.replace(/\n/g, "<br>");
+
+  return html;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   let allowedRegionNames = [];
   let allowedRegionsMap = {};
@@ -61,16 +89,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (dbData) {
       regionNameEl.textContent = dbData.title || name;
-      regionInfoEl.textContent =
-        dbData.summary ||
-        feature.properties.description ||
-        "Information not available.";
+
+      let summaryText = "Information not available.";
+
+      if (
+        dbData.summary &&
+        typeof dbData.summary === "object" &&
+        dbData.summary.text
+      ) {
+        summaryText = dbData.summary.text;
+      } else if (typeof dbData.summary === "string") {
+        summaryText = dbData.summary;
+      }
+
+      regionInfoEl.innerHTML = renderMarkdown(summaryText);
     } else {
       regionInfoEl.textContent =
         feature.properties.info ||
         feature.properties.description ||
         "Information not available.";
     }
+
     infoPanel.style.display = "block";
   }
 

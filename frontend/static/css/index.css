@@ -51,11 +51,20 @@ body {
 }
 
 .sidebar {
-  width: 220px;
-  background-image: url("/static/assets/c.jpg");
-  background-size: 150%;
-  background-position: right 20px bottom 60px;
-  background-repeat: no-repeat;
+  width: 270px;
+  background-image:
+    url("/static/assets/c.jpg"), url("/static/assets/pattern.jpg");
+
+  background-size:
+    160%,
+    40% 100%;
+
+  background-position:
+    right 0px bottom 60px,
+    right 0px top 20px;
+
+  background-repeat: no-repeat, no-repeat;
+
   border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;

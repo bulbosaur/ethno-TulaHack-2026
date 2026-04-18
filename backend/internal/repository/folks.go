@@ -34,7 +34,7 @@ func (r *FolkRepository) Create(ctx context.Context, dto models.CreateFolkDTO) (
 	folk.Lat = dto.Lat
 	folk.Lon = dto.Lon
 	folk.Title = dto.Title
-	folk.Summary = dto.Summary
+	folk.RawSummary = dto.Summary
 
 	return &folk, nil
 }
@@ -47,14 +47,19 @@ func (r *FolkRepository) GetByID(ctx context.Context, id string) (*models.Folk, 
     `
 
 	var f models.Folk
+	var rawSummary []byte
 	err := r.db.QueryRowContext(ctx, query, id).
-		Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &f.Summary, &f.CreatedAt)
+		Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &rawSummary, &f.CreatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to get folk by id: %w", err)
+	}
+
+	if rawSummary != nil {
+		f.RawSummary = rawSummary
 	}
 
 	return &f, nil
@@ -77,8 +82,12 @@ func (r *FolkRepository) GetRandom(ctx context.Context, limit int) ([]models.Fol
 	var folks []models.Folk
 	for rows.Next() {
 		var f models.Folk
-		if err := rows.Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &f.Summary, &f.CreatedAt); err != nil {
+		var rawSummary []byte
+		if err := rows.Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &rawSummary, &f.CreatedAt); err != nil {
 			return nil, fmt.Errorf("failed to scan folk row: %w", err)
+		}
+		if rawSummary != nil {
+			f.RawSummary = rawSummary
 		}
 		folks = append(folks, f)
 	}
@@ -99,14 +108,19 @@ func (r *FolkRepository) Update(ctx context.Context, id string, dto models.Updat
     `
 
 	var f models.Folk
+	var rawSummary []byte
 	err := r.db.QueryRowContext(ctx, query, id, dto.Name, dto.Lat, dto.Lon, dto.Title, dto.Summary).
-		Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &f.Summary, &f.CreatedAt)
+		Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &rawSummary, &f.CreatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to update folk: %w", err)
+	}
+
+	if rawSummary != nil {
+		f.RawSummary = rawSummary
 	}
 
 	return &f, nil
@@ -147,8 +161,12 @@ func (r *FolkRepository) List(ctx context.Context) ([]models.Folk, error) {
 	var folks []models.Folk
 	for rows.Next() {
 		var f models.Folk
-		if err := rows.Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &f.Summary, &f.CreatedAt); err != nil {
+		var rawSummary []byte
+		if err := rows.Scan(&f.ID, &f.Name, &f.Lat, &f.Lon, &f.Title, &rawSummary, &f.CreatedAt); err != nil {
 			return nil, fmt.Errorf("failed to scan folk row: %w", err)
+		}
+		if rawSummary != nil {
+			f.RawSummary = rawSummary
 		}
 		folks = append(folks, f)
 	}
