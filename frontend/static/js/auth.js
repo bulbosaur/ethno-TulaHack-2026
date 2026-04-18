@@ -60,7 +60,7 @@ document
         messageEl.textContent = "Регистрация успешна!";
         messageEl.className = "message success";
         messageEl.classList.remove("hidden");
-        setTimeout(() => (window.location.href = "/login.html"), 1500);
+        setTimeout(() => (window.location.href = "/login"), 1500);
       } else {
         messageEl.textContent = result.error || "Проверьте введенные данные";
         messageEl.className = "message error";
