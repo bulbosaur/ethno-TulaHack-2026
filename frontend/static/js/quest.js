@@ -325,8 +325,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           maxZoom: 10,
         });
 
+        map.attributionControl.setPrefix("");
+
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "© OpenStreetMap contributors",
+          attribution:
+            '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 10,
           minZoom: 5,
         }).addTo(map);
@@ -356,7 +359,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           marker.bindPopup(`
           <div style="text-align:center">
             <strong>${region.name}</strong><br>
-            <small>Перетащите сюда игрушку</small>
+            <small>Попробуйте снова</small>
           </div>
         `);
 
@@ -373,7 +376,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (state.selectedToy) {
               handleMatch(state.selectedToy, region.id);
             } else {
-              alert("Сначала выберите игрушку слева (нажмите на неё)");
+              alert("Сначала выберите игрушку (нажмите на неё)");
             }
           });
         });
