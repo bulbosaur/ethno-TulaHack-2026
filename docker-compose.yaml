@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   db:
     image: postgres:16-alpine
@@ -15,6 +14,7 @@ services:
       interval: 3s
       timeout: 3s
       retries: 3
+
   adminer:
     image: adminer:latest
     ports:
@@ -23,6 +23,41 @@ services:
       - db
     environment:
       ADMINER_DEFAULT_SERVER: db
+
+  project:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ethno-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=prod
+
+      - DB_USER=dev
+      - DB_PASSWORD=12345
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=ethno
+
+      - HTTP_HOST=0.0.0.0
+      - HTTP_PORT=8080
+
+      - JWT_SECRET=change-me-in-prod-please
+      - JWT_EXPIRY_HOURS=24
+
+      - MIGRATIONS_PATH=file://migrations
+
+      - COOKIE_DOMAIN=localhost
+      - COOKIE_SECURE=false
+
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app/frontend:ro
+      - ./backend/migrations:/app/migrations:ro
 
 volumes:
   pgdata:

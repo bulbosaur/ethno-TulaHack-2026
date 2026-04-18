@@ -1,0 +1,16 @@
+vendor/
+go.sum
+
+bin/
+*.exe
+
+.git/
+.gitignore
+*.md
+
+.vscode/
+.idea/
+*.swp
+
+logs/
+*.log

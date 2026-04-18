@@ -31,15 +31,14 @@ func NewServer(
 	r.Use(loggerMiddleware(logger))
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok"}`))
 	})
 
 	r.Post("/api/register", authHandler.Register)
 	r.Post("/api/login", authHandler.Login)
-
 	r.Get("/api/regions", handler.GetRandomFolksHandler(folkRepo))
-
+	
 	questHandler.RegisterRoutes(r) 
 
 	r.Group(func(r chi.Router) {
@@ -47,24 +46,25 @@ func NewServer(
 		r.Get("/api/me", authHandler.GetMe)
 	})
 
-	r.Get("/profile", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../frontend/templates/profile.html")
-	})
-	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../frontend/templates/login.html")
-	})
-	r.Get("/register", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../frontend/templates/register.html")
-	})
-	r.Get("/quests/{slug}", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../frontend/templates/quest.html")
-	})
-
-	staticFS := http.FileServer(http.Dir("../frontend/static"))
+	staticFS := http.FileServer(http.Dir("frontend/static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", staticFS))
 
-	templatesFS := http.FileServer(http.Dir("../frontend/templates"))
-	r.Handle("/*", http.StripPrefix("/", templatesFS))
+	r.Get("/profile", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "frontend/templates/profile.html")
+	})
+	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "frontend/templates/login.html")
+	})
+	r.Get("/register", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "frontend/templates/register.html")
+	})
+	r.Get("/quests/{slug}", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "frontend/templates/quest.html")
+	})
+
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "frontend/templates/index.html")
+	})
 
 	return &Server{
 		router: r,
