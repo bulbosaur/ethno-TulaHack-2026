@@ -167,3 +167,48 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>`;
     });
 });
+
+async function loadQuests() {
+  const grid = document.getElementById("quests-grid");
+
+  try {
+    const res = await fetch("/api/quests");
+    if (!res.ok) throw new Error("Failed to load quests");
+    const { data: quests } = await res.json();
+
+    if (quests.length === 0) {
+      grid.innerHTML = '<div class="quest-card">Квесты пока недоступны</div>';
+      return;
+    }
+
+    grid.innerHTML = quests
+      .map(
+        (quest) => `
+      <a href="/quests/${quest.slug}" class="quest-card" data-slug="${quest.slug}">
+        ${
+          quest.cover
+            ? `<img src="${quest.cover}" alt="${quest.title}" class="quest-cover" onerror="this.classList.add('missing'); this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22120%22><text y=%22.6em%22 font-size=%2240%22>🎨</text></svg>'">`
+            : `<div class="quest-cover missing">🎨</div>`
+        }
+        <div class="quest-info">
+          <h4>${quest.title}</h4>
+          <p>${quest.description?.slice(0, 80)}${quest.description?.length > 80 ? "..." : ""}</p>
+        </div>
+        <div class="quest-meta">
+          <span class="quest-badge">Начать</span>
+          <span>→</span>
+        </div>
+      </a>
+    `,
+      )
+      .join("");
+  } catch (err) {
+    console.error("Quests load error:", err);
+    grid.innerHTML =
+      '<div class="quest-card" style="border-color:#ef4444">Не удалось загрузить квесты</div>';
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(loadQuests, 500);
+});

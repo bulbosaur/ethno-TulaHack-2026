@@ -8,22 +8,49 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="../static/css/index.css" />
+    <link rel="stylesheet" href="/static/css/index.css" />
   </head>
   <body>
-    <div class="container">
-      <header>
-        <h1>ЭТНО</h1>
-        <p>Поучаствуй в возрождении ремесла</p>
-      </header>
+    <div class="app-layout">
+      <!-- Левый сайдбар -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h1>ЭТНО</h1>
+          <p class="sidebar-subtitle">Возрождение ремёсел</p>
+        </div>
 
-      <div id="map"></div>
+        <nav class="sidebar-nav">
+          <a href="/login" class="sidebar-link">Войти</a>
+          <a href="/register" class="sidebar-link">Зарегистрироваться</a>
+        </nav>
 
-      <main class="landing-buttons">
-        <a href="/login" class="btn btn-primary btn-large">Войти</a>
-        <a href="/register" class="btn btn-secondary btn-large"
-          >Зарегистрироваться</a
-        >
+        <div class="sidebar-footer">
+          <p class="copyright">© 2026 Ethno Project</p>
+        </div>
+      </aside>
+
+      <!-- Основной контент -->
+      <main class="main-content">
+        <div class="content-wrapper">
+          <header class="page-header">
+            <h2>Исследуй культуру народов</h2>
+            <p class="header-desc">
+              Кликните на регион на карте или выберите квест ниже
+            </p>
+          </header>
+
+          <!-- Карта -->
+          <div id="map"></div>
+
+          <!-- Плитки квестов -->
+          <section class="quests-section">
+            <h3>Доступные квесты</h3>
+            <div id="quests-grid" class="quests-grid">
+              <!-- Сюда JS добавит плитки -->
+              <div class="quest-card loading">Загрузка квестов...</div>
+            </div>
+          </section>
+        </div>
       </main>
     </div>
 
@@ -36,6 +63,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="../static/js/index.js"></script>
+    <script src="/static/js/index.js"></script>
   </body>
 </html>
