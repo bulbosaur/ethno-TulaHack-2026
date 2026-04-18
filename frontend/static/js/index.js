@@ -192,7 +192,7 @@ async function loadQuests() {
         }
         <div class="quest-info">
           <h4>${quest.title}</h4>
-          <p>${quest.description?.slice(0, 80)}${quest.description?.length > 80 ? "..." : ""}</p>
+          <p>${quest.description ? quest.description.slice(0, 80) + (quest.description.length > 80 ? "..." : "") : ""}</p>
         </div>
         <div class="quest-meta">
           <span class="quest-badge">Начать</span>
