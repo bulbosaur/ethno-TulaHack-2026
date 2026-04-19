@@ -16,20 +16,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const user = await res.json();
-    userNameEl.textContent = user.name || user.email?.split("@")[0];
-
+    userNameEl.textContent =
+      user.username || user.email?.split("@")[0] || "Пользователь";
     await loadQuestRecommendations();
   } catch (err) {
     console.error("Ошибка загрузки кабинета:", err);
-    window.location.href = "/login.html";
+    userNameEl.textContent = "Ошибка";
+    questsGrid.innerHTML = `<div class="quest-card" style="border-color:#ef4444">Не удалось загрузить рекомендации</div>`;
   }
 
-  logoutBtn?.addEventListener("click", async () => {
-    await fetch("/api/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    window.location.href = "/";
+  logoutBtn?.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    try {
+      await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Ошибка при выходе:", err);
+    } finally {
+      localStorage.removeItem("auth_token");
+      sessionStorage.removeItem("auth_token");
+      window.location.href = "/";
+    }
   });
 
   async function loadQuestRecommendations() {
@@ -43,6 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           region: "Ямал",
           difficulty: "Средний",
           slug: "khanty-crafts",
+          cover: null,
         },
         {
           id: 2,
@@ -51,6 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           region: "Алтай",
           difficulty: "Лёгкий",
           slug: "nomad-path",
+          cover: null,
         },
         {
           id: 3,
@@ -59,43 +71,45 @@ document.addEventListener("DOMContentLoaded", async () => {
           region: "Бурятия",
           difficulty: "Сложный",
           slug: "taiga-voice",
+          cover: null,
         },
       ];
 
       renderQuests(mockQuests);
     } catch (err) {
-      questsGrid.innerHTML = `<div class="quest-card placeholder">Не удалось загрузить рекомендации</div>`;
+      questsGrid.innerHTML = `<div class="quest-card" style="border-color:#ef4444">Не удалось загрузить рекомендации</div>`;
       console.error("Ошибка загрузки квестов:", err);
     }
   }
 
   function renderQuests(quests) {
-    if (!quests.length) {
-      questsGrid.innerHTML = `<div class="quest-card placeholder">Пока нет рекомендаций</div>`;
+    if (!quests?.length) {
+      questsGrid.innerHTML = `<div class="quest-card">Пока нет рекомендаций</div>`;
       return;
     }
 
     questsGrid.innerHTML = quests
       .map(
         (quest) => `
-        <div class="quest-card" data-id="${quest.id}" data-slug="${quest.slug}">
-          <h3>${escapeHtml(quest.title)}</h3>
-          <p>${escapeHtml(quest.description)}</p>
-          <div class="quest-meta">
-            <span class="tag">📍 ${escapeHtml(quest.region)}</span>
-            <span class="tag">⚡ ${escapeHtml(quest.difficulty)}</span>
+        <a href="/quests/${quest.slug}" class="quest-card">
+          ${
+            quest.cover
+              ? `<img src="${quest.cover}" alt="${quest.title}" class="quest-cover" onerror="this.classList.add('missing'); this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22120%22><text y=%22.6em%22 font-size=%2240%22>🎨</text></svg>'">`
+              : `<div class="quest-cover missing">🎨</div>`
+          }
+          <div class="quest-info">
+            <h4>${escapeHtml(quest.title)}</h4>
+            <p>${escapeHtml(quest.description?.slice(0, 80) + (quest.description?.length > 80 ? "..." : ""))}</p>
           </div>
-        </div>
+          <div class="quest-meta">
+            <span class="quest-badge">📍 ${escapeHtml(quest.region)}</span>
+            <span>⚡ ${escapeHtml(quest.difficulty)}</span>
+            <span>→</span>
+          </div>
+        </a>
       `,
       )
       .join("");
-
-    document.querySelectorAll(".quest-card").forEach((card) => {
-      card.addEventListener("click", () => {
-        const slug = card.dataset.slug;
-        window.location.href = `/quests/${slug}`;
-      });
-    });
   }
 
   function escapeHtml(str) {

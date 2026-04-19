@@ -18,7 +18,8 @@ document.getElementById("login-form")?.addEventListener("submit", async (e) => {
     const result = await res.json();
 
     if (res.ok) {
-      messageEl.textContent = "Успешный вход!";
+      messageEl.textContent =
+        "Успешный вход! Дождитесь переадресации в личный кабинет";
       messageEl.className = "message success";
       messageEl.classList.remove("hidden");
       setTimeout(() => (window.location.href = "/profile"), 1500);
