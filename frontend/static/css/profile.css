@@ -192,3 +192,40 @@ a.btn-secondary:hover {
   color: #dc2626 !important;
   border-color: #fecaca !important;
 }
+
+.sidebar-nav .sidebar-link,
+.sidebar-nav #logout-btn {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.sidebar-nav .sidebar-link:hover,
+.sidebar-nav #logout-btn:hover {
+  background: var(--card-hover) !important;
+  border-color: var(--card-border) !important;
+  color: var(--text) !important;
+}
+
+.sidebar-nav .sidebar-link:focus,
+.sidebar-nav #logout-btn:focus {
+  background: var(--card-hover) !important;
+  border-color: var(--primary) !important;
+  outline: none !important;
+}
+
+.sidebar-nav .sidebar-link:active,
+.sidebar-nav #logout-btn:active {
+  background: var(--card-hover) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.sidebar-nav a,
+.sidebar-nav button {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}

@@ -256,7 +256,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function renderMapMatch(step) {
-    console.log("🗺️ renderMapMatch START");
+    console.log("renderMapMatch START");
 
     const { goal, toys, regions } = step.content;
     state.matchedToys = {};
