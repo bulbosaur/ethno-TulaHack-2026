@@ -52,18 +52,18 @@ docker compose up -d --build
 
 2.  Ждём 5–15 сек, пока PostgreSQL завершит инициализацию
 
-3.  Создаём дамп для корректного изображения интерактивной карты и квестов
+3.  Заполняем базу для корректного изображения интерактивной карты и квестов
 
 Linux/macOS
 
 ```bash
-docker compose exec -T db pg_dump -U dev -d ethno --format=plain --encoding=UTF8 --no-owner --no-acl --clean --if-exists > seed.sql
+docker compose exec -T db psql -U dev -d ethno < seed.sql
 ```
 
 Windows
 
 ```bash
-docker compose exec -T db pg_dump -U dev -d ethno --format=plain --encoding=UTF8 --no-owner --no-acl --clean --if-exists | Set-Content -Encoding UTF8 seed.sql
+Get-Content seed.sql | docker compose exec -T db psql -U dev -d ethno
 ```
 
 ## API
@@ -100,14 +100,4 @@ docker compose exec -T db pg_dump -U dev -d ethno --format=plain --encoding=UTF8
 
 В разделе **доступные квесты** пользователь может поиграть и узнать новое о народных промыслах. После авторизации в личном кабинете появляются плитки с рекомендациями квестов.
 
-У пользователя есть возможность не только зарегистрироваться и войти в свой личный кабинет, но и выйти из него.
-
 ![Пример работы](./media/example.gif)
-
-```
-
-```
-
-```
-
-```
