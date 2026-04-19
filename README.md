@@ -32,4 +32,4 @@ docker compose exec -T db pg_dump -U dev -d ethno --format=plain --encoding=UTF8
 
 Доступен на `localhost:8080`
 
-![Пример работы](media/example.gif)
+![Пример работы](./media/example.gif)
