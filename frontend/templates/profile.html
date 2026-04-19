@@ -6,6 +6,50 @@
     <title>Личный кабинет | Ethno</title>
     <link rel="stylesheet" href="/static/css/index.css" />
     <link rel="stylesheet" href="/static/css/profile.css" />
+    <style>
+      .quest-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .quest-info h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+        color: var(--text);
+      }
+
+      .quest-info p {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        margin: 0;
+        line-height: 1.4;
+      }
+
+      .quest-meta {
+        display: flex;
+        gap: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: auto;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .quest-badge {
+        background: #eef2ff;
+        color: var(--primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+      .quest-cover,
+      .quest-cover.missing {
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <div class="app-layout">
@@ -61,6 +105,124 @@
       </main>
     </div>
 
-    <script src="/static/js/profile.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const userNameEl = document.getElementById("user-name");
+        const questsGrid = document.getElementById("quests-grid");
+        const logoutBtn = document.getElementById("logout-btn");
+
+        try {
+          const res = await fetch("/api/me", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          });
+
+          if (!res.ok) {
+            window.location.href = "/login";
+            return;
+          }
+
+          const user = await res.json();
+          userNameEl.textContent =
+            user.username || user.email?.split("@")[0] || "Пользователь";
+          await loadQuestRecommendations();
+        } catch (err) {
+          console.error("Ошибка загрузки кабинета:", err);
+          userNameEl.textContent = "Ошибка";
+          questsGrid.innerHTML = `<div class="quest-card" style="border-color:#ef4444">Не удалось загрузить рекомендации</div>`;
+        }
+
+        logoutBtn?.addEventListener("click", async (e) => {
+          e.preventDefault();
+
+          try {
+            await fetch("/api/logout", {
+              method: "POST",
+              credentials: "include",
+            });
+          } catch (err) {
+            console.error("Ошибка при выходе:", err);
+          } finally {
+            localStorage.removeItem("auth_token");
+            sessionStorage.removeItem("auth_token");
+            window.location.href = "/";
+          }
+        });
+
+        async function loadQuestRecommendations() {
+          try {
+            const mockQuests = [
+              {
+                id: 1,
+                title: "Тропа мастеров Ханты",
+                description:
+                  "Познакомься с древними ремёслами и традициями хантов. Узнай о тамгах, узорах и создай свой оберег.",
+                region: "Ямал",
+                difficulty: "Средний",
+                slug: "khanty-crafts",
+              },
+              {
+                id: 2,
+                title: "Путь кочевника",
+                description:
+                  "Погрузись в культуру степных народов и их миграции",
+                region: "Алтай",
+                difficulty: "Лёгкий",
+                slug: "nomad-path",
+              },
+              {
+                id: 3,
+                title: "Голос тайги",
+                description: "Узнай о верованиях и ремёслах сибирских народов",
+                region: "Бурятия",
+                difficulty: "Сложный",
+                slug: "taiga-voice",
+              },
+            ];
+
+            renderQuests(mockQuests);
+          } catch (err) {
+            questsGrid.innerHTML = `<div class="quest-card" style="border-color:#ef4444">Не удалось загрузить рекомендации</div>`;
+            console.error("Ошибка загрузки квестов:", err);
+          }
+        }
+
+        function renderQuests(quests) {
+          if (!quests?.length) {
+            questsGrid.innerHTML = `<div class="quest-card">Пока нет рекомендаций</div>`;
+            return;
+          }
+
+          questsGrid.innerHTML = quests
+            .map(
+              (quest) => `
+              <a href="/quests/${quest.slug}" class="quest-card">
+                <div class="quest-info">
+                  <h4>${escapeHtml(quest.title)}</h4>
+                  <p>${escapeHtml(
+                    quest.description?.slice(0, 120) +
+                      (quest.description?.length > 120 ? "..." : ""),
+                  )}</p>
+                </div>
+                <div class="quest-meta">
+                  <span class="quest-badge">📍 ${escapeHtml(quest.region)}</span>
+                  <span>⚡ ${escapeHtml(quest.difficulty)}</span>
+                  <span style="margin-left:auto">→</span>
+                </div>
+              </a>
+            `,
+            )
+            .join("");
+        }
+
+        function escapeHtml(str) {
+          if (!str) return "";
+          const div = document.createElement("div");
+          div.textContent = str;
+          return div.innerHTML;
+        }
+      });
+    </script>
   </body>
 </html>
